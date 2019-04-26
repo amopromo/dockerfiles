@@ -40,14 +40,14 @@ make && \
 make install && \
 apk del build-base git linux-headers git perl-dev wget && \
 mkdir /etc/nginx/conf.d && \
+apk del pcre-dev zlib-dev wget build-base geoip-dev git perl-dev linux-headers && \
 rm -rf /tmp/src && \
-rm -rf /var/cache/apk/*
-
+rm -rf /var/cache/apk/* && \ 
 # forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log
-RUN ln -sf /dev/stderr /var/log/nginx/error.log
+    ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
 
-VOLUME [“/var/log/nginx”]
+VOLUME ["/var/log/nginx"]
 
 WORKDIR /etc/nginx
 #COPY nginx.conf /etc/nginx
