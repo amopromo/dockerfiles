@@ -2,7 +2,7 @@ FROM alpine:latest
 
 MAINTAINER anakinpendragon - anakinpendragon@gmail.com 
 
-ENV NGINX_VERSION nginx-1.16.0
+ENV NGINX_VERSION nginx-1.17.0
 ENV OPENSSL_VERSION openssl-1.1.1b
 
 RUN apk --update add pcre-dev zlib-dev wget build-base geoip-dev git perl-dev linux-headers && \
@@ -41,6 +41,7 @@ make install && \
 apk del build-base git linux-headers git perl-dev wget && \
 mkdir /etc/nginx/conf.d && \
 apk del pcre-dev zlib-dev wget build-base geoip-dev git perl-dev linux-headers && \
+apk add pcre geoip && \
 rm -rf /tmp/src && \
 rm -rf /var/cache/apk/* && \ 
 # forward request and error logs to docker log collector
