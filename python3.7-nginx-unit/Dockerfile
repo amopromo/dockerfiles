@@ -15,11 +15,13 @@ RUN     apk add --no-cache --virtual .fetch-deps \
     cd /usr/src/ && \
     git clone https://github.com/nginx/unit && \
     cd /usr/src/unit/  && \
-    ./configure --prefix=/opt/unit && \
+    ./configure --state=/var/lib/unit --log=/var/log/unit.log \
+              --control=unix:/run/control.unit.sock --prefix=/usr/local/  && \
     make install && \
     ./configure python  && \
     make install && \
 # Remove pacotes que nao sao mais necessarios
+    apk add curl && \
     apk del git \
     go \
     make \
@@ -29,5 +31,5 @@ RUN     apk add --no-cache --virtual .fetch-deps \
     rm -Rf /usr/src/unit
 
 
-CMD ["/opt/sbin/unitd"]
+CMD ["unitd"]
 

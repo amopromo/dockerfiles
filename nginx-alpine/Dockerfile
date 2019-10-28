@@ -2,8 +2,8 @@ FROM alpine:latest
 
 MAINTAINER anakinpendragon - anakinpendragon@gmail.com 
 
-ENV NGINX_VERSION nginx-1.17.1
-ENV OPENSSL_VERSION openssl-1.1.1c
+ENV NGINX_VERSION nginx-1.17.5
+ENV OPENSSL_VERSION openssl-1.1.1d
 
 RUN apk --update add pcre-dev zlib-dev wget build-base geoip-dev git perl-dev linux-headers && \
 mkdir -p /tmp/src && \
