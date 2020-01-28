@@ -1,57 +1,28 @@
-FROM alpine:latest
-
+FROM centos:7
 MAINTAINER anakinpendragon - anakinpendragon@gmail.com 
-
-ENV NGINX_VERSION nginx-1.17.7
-ENV OPENSSL_VERSION openssl-1.1.1d
-
-RUN apk --update add pcre-dev zlib-dev wget build-base geoip-dev git perl-dev linux-headers && \
+ENV SAMBA_VERSION samba-4.11.4
+RUN yum -y groupinstall "Development Tools" && \
+yum -y install epel-release && \
+yum -y install cups-devel wget python3-devel attr bind-utils docbook-style-xsl gcc gdb krb5-workstation libsemanage-python libxslt perl perl-ExtUtils-MakeMaker \
+perl-Parse-Yapp perl-Test-Base pkgconfig policycoreutils-python \
+python2-crypto gnutls-devel libattr-devel keyutils-libs-devel libacl-devel libaio-devel libblkid-devel libxml2-devel openldap-devel \
+pam-devel popt-devel python-devel readline-devel zlib-devel systemd-devel \
+lmdb-devel jansson-devel gpgme-devel pygpgme libarchive-devel autoconf automake gcc gdb krb5-devel krb5-workstation \
+openldap-devel make pam-devel python-devel docbook-style-xsl libacl-devel libattr-devel libxslt libtasn1-devel.x86_64 libtasn1.x86_64  libtasn1-tools && \
 mkdir -p /tmp/src && \
-mkdir -p /tmp/uwsgi && \
 cd /tmp/src && \
-wget http://nginx.org/download/${NGINX_VERSION}.tar.gz && \
-tar -zxvf ${NGINX_VERSION}.tar.gz && \
-wget https://www.openssl.org/source/${OPENSSL_VERSION}.tar.gz && \
-tar -zxvf ${OPENSSL_VERSION}.tar.gz && \
-git clone --recursive https://github.com/google/ngx_brotli.git /tmp/src/brotli && \
-git clone https://github.com/vozlt/nginx-module-vts.git /tmp/src/vts && \
-cd /tmp/src/${NGINX_VERSION} && \
-./configure \
---with-http_ssl_module \
---with-http_gzip_static_module \
---with-openssl=/tmp/src/${OPENSSL_VERSION}/ \
---add-module=/tmp/src/brotli \
---add-module=/tmp/src/vts \
---with-http_v2_module \
---with-http_geoip_module \
---with-pcre-jit \
---with-http_realip_module \
---http-uwsgi-temp-path=/tmp/uwsgi \
---prefix=/usr/share/nginx \
---sbin-path=/usr/sbin/nginx \
---modules-path=/usr/lib64/nginx/modules \
---conf-path=/etc/nginx/nginx.conf \
---error-log-path=/var/log/nginx/error.log \
---http-log-path=/var/log/nginx/access.log \
---http-log-path=/var/log/nginx/access.log \
---error-log-path=/var/log/nginx/error.log \
---sbin-path=/usr/local/sbin/nginx && \
-make && \
+wget https://download.samba.org/pub/samba/${SAMBA_VERSION}.tar.gz && \
+tar -zxvf ${SAMBA_VERSION}.tar.gz && \
+cd /tmp/src/${SAMBA_VERSION} && \
+./configure   && \
 make install && \
-apk del build-base git linux-headers git perl-dev wget && \
-mkdir /etc/nginx/conf.d && \
-apk del pcre-dev zlib-dev wget build-base geoip-dev git perl-dev linux-headers && \
-apk add pcre geoip && \
+yum remove cups-devel wget gcc gnutls-devel libattr-devel keyutils-libs-devel python-devel && \
 rm -rf /tmp/src && \
-rm -rf /var/cache/apk/* && \ 
+yum clean all && \ 
 # forward request and error logs to docker log collector
-    ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
-
-VOLUME ["/var/log/nginx"]
-
-WORKDIR /etc/nginx
+#    ln -sf /dev/stdout  /usr/local/samba/var/log.samba && \
+#    ln -sf /dev/stderr /usr/local/samba/var/log.smbd
+#WORKDIR /
 #COPY nginx.conf /etc/nginx
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"] 
+EXPOSE 37/udp 53 88 135/tcp 137/udp 138/udp 139 389 445 464 636/tcp 1024-5000/tcp 3268/tcp 3269/tcp
+CMD ["samba", "-D"] 
